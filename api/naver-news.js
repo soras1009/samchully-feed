@@ -10,8 +10,12 @@ export default async function handler(req, res) {
   if (!clientId || !clientSecret) return res.status(500).json({ items: [] });
 
   try {
-    // 제목 전체를 검색 (특수문자만 제거)
-    const keyword = query.replace(/['"<>]/g, '').trim();
+    // 모든 종류의 따옴표 및 특수문자 제거
+    const keyword = query
+      .replace(/["""''`<>]/g, '')  // 영문/한국어 따옴표 전부 제거
+      .replace(/\s+/g, ' ')        // 연속 공백 정리
+      .trim();
+
     const searchQuery = encodeURIComponent(keyword);
     const url = `https://openapi.naver.com/v1/search/news.json?query=${searchQuery}&display=5&sort=date`;
 
