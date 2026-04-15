@@ -1,6 +1,4 @@
-// =============================================
-// app.js — 삼천리 피드 (네이버 관련기사 포함)
-// =============================================
+// app.js — 삼천리 피드
 
 let allItems = [];
 
@@ -51,21 +49,25 @@ async function fetchNews() {
 async function fetchRelatedNews(title, btnEl, listEl) {
   btnEl.textContent = '검색 중...';
   btnEl.disabled = true;
-  const keyword = title.replace(/[^\w\s가-힣]/g, '').trim().slice(0, 20);
+
   try {
-    const res = await fetch('/api/naver-news?query=' + encodeURIComponent(keyword));
+    // 제목 전체를 그대로 전달 (encodeURIComponent로 안전하게)
+    const res = await fetch('/api/naver-news?query=' + encodeURIComponent(title));
     const data = await res.json();
+
     if (!data.items || data.items.length === 0) {
       listEl.innerHTML = '<div class="related-empty">관련 기사를 찾을 수 없어요</div>';
       btnEl.style.display = 'none';
       return;
     }
+
     listEl.innerHTML = data.items.map(item => `
       <a class="related-item" href="${item.url}" target="_blank" rel="noopener">
         <span class="related-title">${item.title}</span>
         <span class="related-meta">${item.source || ''}${item.pubDate ? ' · ' + formatDate(item.pubDate) : ''}</span>
       </a>`).join('');
     btnEl.style.display = 'none';
+
   } catch(e) {
     listEl.innerHTML = '<div class="related-empty">불러오기 실패</div>';
     btnEl.textContent = '+ 관련 기사 보기';
@@ -76,7 +78,10 @@ async function fetchRelatedNews(title, btnEl, listEl) {
 const TAG_LABEL = { news:'뉴스', YOUTUBE:'유튜브', INSTAGRAM:'인스타', BLOG:'블로그', COMPANY_MAGAZINE:'사보' };
 const TAG_CLASS  = { news:'tag-news', YOUTUBE:'tag-yt', INSTAGRAM:'tag-insta', BLOG:'tag-blog', COMPANY_MAGAZINE:'tag-sabo' };
 
-function makeCard(item) {
+// 각 카드에 고유 ID 부여해서 제목을 데이터로 저장
+let cardTitles = {};
+
+function makeCard(item, index) {
   const newDot   = isNew(item.date) ? '<span class="new-dot"></span>' : '';
   const tagLabel = TAG_LABEL[item.type] || item.source || item.type;
   const tagClass = TAG_CLASS[item.type] || 'tag-news';
@@ -98,9 +103,11 @@ function makeCard(item) {
   }
 
   if (item.type === 'news') {
-    const safeTitle = item.title.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    // 제목을 data 속성으로 저장 (특수문자 이스케이프 없이)
+    const cardId = 'card-' + index;
+    cardTitles[cardId] = item.title;
     const thumbHtml = item.thumb ? `<div class="thumb"><img src="${item.thumb}" alt="" loading="lazy"></div>` : '';
-    return `<div class="card">
+    return `<div class="card" id="${cardId}">
       <a href="${item.url}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:block;">
         ${thumbHtml}
         <div class="card-body">
@@ -110,7 +117,7 @@ function makeCard(item) {
         </div>
       </a>
       <div class="related-section">
-        <button class="related-btn" onclick="toggleRelated(this,'${safeTitle}')">+ 관련 기사 보기</button>
+        <button class="related-btn" onclick="toggleRelated(this,'${cardId}')">+ 관련 기사 보기</button>
         <div class="related-list"></div>
       </div></div>`;
   }
@@ -125,7 +132,7 @@ function makeCard(item) {
     </div></a>`;
 }
 
-window.toggleRelated = function(btnEl, title) {
+window.toggleRelated = function(btnEl, cardId) {
   const listEl = btnEl.nextElementSibling;
   if (listEl.innerHTML) {
     const isHidden = listEl.style.display === 'none';
@@ -134,13 +141,16 @@ window.toggleRelated = function(btnEl, title) {
     return;
   }
   btnEl.textContent = '- 접기';
+  // cardId로 제목 가져오기
+  const title = cardTitles[cardId] || '';
   fetchRelatedNews(title, btnEl, listEl);
 };
 
 function render(tab) {
+  cardTitles = {};
   const list = tab === 'all' ? allItems : allItems.filter(x => x.type === tab);
   document.getElementById('feed').innerHTML = list.length
-    ? list.map(makeCard).join('')
+    ? list.map((item, i) => makeCard(item, i)).join('')
     : '<div class="empty">콘텐츠가 없어요</div>';
 }
 
