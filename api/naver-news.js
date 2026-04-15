@@ -10,8 +10,8 @@ export default async function handler(req, res) {
   if (!clientId || !clientSecret) return res.status(500).json({ items: [] });
 
   try {
-    // 제목 그대로 검색 (앞 20자, 특수문자만 제거)
-    const keyword = query.replace(/['"<>]/g, '').trim().slice(0, 20);
+    // 제목 전체를 검색 (특수문자만 제거)
+    const keyword = query.replace(/['"<>]/g, '').trim();
     const searchQuery = encodeURIComponent(keyword);
     const url = `https://openapi.naver.com/v1/search/news.json?query=${searchQuery}&display=5&sort=date`;
 
@@ -46,6 +46,7 @@ function extractSource(url) {
       'hani.co.kr':'한겨레','mk.co.kr':'매일경제','hankyung.com':'한국경제',
       'sedaily.com':'서울경제','etnews.com':'전자신문','edaily.co.kr':'이데일리',
       'newsis.com':'뉴시스','yonhapnews.co.kr':'연합뉴스','yna.co.kr':'연합뉴스',
+      'fnnews.com':'파이낸셜뉴스','mt.co.kr':'머니투데이','the-pr.co.kr':'더피알',
     };
     return map[domain] || domain;
   } catch { return ''; }
