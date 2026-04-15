@@ -1,34 +1,43 @@
-// api/naver-news.js
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
+
   const { query } = req.query;
   if (!query) return res.status(400).json({ items: [] });
+
   const clientId     = process.env.NAVER_CLIENT_ID;
   const clientSecret = process.env.NAVER_CLIENT_SECRET;
   if (!clientId || !clientSecret) return res.status(500).json({ items: [] });
+
   try {
-    const searchQuery = encodeURIComponent('삼천리 ' + query);
+    // 제목 그대로 검색 (앞 20자, 특수문자만 제거)
+    const keyword = query.replace(/['"<>]/g, '').trim().slice(0, 20);
+    const searchQuery = encodeURIComponent(keyword);
     const url = `https://openapi.naver.com/v1/search/news.json?query=${searchQuery}&display=5&sort=date`;
+
     const response = await fetch(url, {
       headers: {
         'X-Naver-Client-Id': clientId,
         'X-Naver-Client-Secret': clientSecret,
       }
     });
+
     const data = await response.json();
     if (!data.items) return res.status(200).json({ items: [] });
+
     const items = data.items.map(item => ({
       title:   item.title.replace(/<[^>]+>/g, ''),
       url:     item.originallink || item.link,
       source:  extractSource(item.originallink || item.link),
       pubDate: item.pubDate,
     }));
+
     res.status(200).json({ items });
   } catch(e) {
     res.status(500).json({ error: e.message, items: [] });
   }
 }
+
 function extractSource(url) {
   try {
     const domain = new URL(url).hostname.replace('www.', '');
