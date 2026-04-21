@@ -28,25 +28,20 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); min-heigh
 .feed { padding: 16px; display: flex; flex-direction: column; gap: 12px; max-width: 640px; margin: 0 auto; }
 @media (min-width: 1024px) {
   .header { max-width: 1200px; margin: 0 auto; }
-  .feed { max-width: 1200px; display: grid; grid-template-columns: repeat(2, 1fr); align-items: stretch; }
-  .card { display: flex; flex-direction: column; }
-  .card-body { flex: 1; display: flex; flex-direction: column; }
-  .related-section { margin-top: auto; }
+  .feed { max-width: 1200px; display: grid; grid-template-columns: repeat(2, 1fr); align-items: start; }
 }
 .loading { text-align: center; padding: 60px 20px; color: var(--text-secondary); font-size: 13px; }
 .spinner { width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 12px; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.card { background: var(--surface); border-radius: var(--radius); overflow: hidden; border: 0.5px solid var(--border); transition: transform .15s, box-shadow .15s; animation: fadeUp .3s ease forwards; opacity: 0; text-decoration: none; color: inherit; }
+.card { background: var(--surface); border-radius: var(--radius); overflow: hidden; border: 0.5px solid var(--border); transition: transform .15s, box-shadow .15s; animation: fadeUp .3s ease forwards; opacity: 0; text-decoration: none; display: block; color: inherit; }
 .card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
 .card:active { transform: scale(0.98); }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .card:nth-child(1){ animation-delay:.03s } .card:nth-child(2){ animation-delay:.08s }
 .card:nth-child(3){ animation-delay:.13s } .card:nth-child(4){ animation-delay:.18s }
 .card:nth-child(5){ animation-delay:.23s } .card:nth-child(n+6){ animation-delay:.28s }
-.thumb { width: 100%; height: 240px; background: var(--surface2); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
-.thumb img { width: 100%; height: 100%; object-fit: cover; transform-origin: center center; animation: kenBurns 7s ease-in-out infinite alternate; }
-@keyframes kenBurns { from { transform: scale(1.1) translateY(20px); } to { transform: scale(1.25) translateY(60px); } }
-.thumb.yt-bg img { animation: none; transform: none; object-position: center center; }
+.thumb { width: 100%; aspect-ratio: 1/1; background: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+.thumb img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
 .thumb.yt-bg { background: #0a0a0a; }
 .play-btn { position: absolute; width: 48px; height: 48px; background: rgba(210,25,25,.92); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 .play-btn::after { content: ''; border-left: 16px solid #fff; border-top: 10px solid transparent; border-bottom: 10px solid transparent; margin-left: 4px; }
