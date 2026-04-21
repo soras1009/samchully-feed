@@ -1,6 +1,6 @@
 {
-  "name": "삼천리 NOW",
-  "short_name": "삼천리 NOW",
+  "name": "삼천리 Feed",
+  "short_name": "삼천리 Feed",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
